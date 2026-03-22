@@ -1,120 +1,238 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>圈圈叉叉線上對戰大廳</title>
+    <title>七彩的微風</title>
     <style>
-        /* --- 這是 CSS 部分：負責視覺外觀 --- */
-        body { 
-            font-family: "Microsoft JhengHei", Helvetica, sans-serif; 
-            background-color: #f4f7f6; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0; 
+		body { 
+			font-family: "Microsoft JhengHei", sans-serif; 
+			margin: 0; 
+			padding: 0;
+			display: flex; 
+			flex-direction: column; 
+			align-items: center; 
+			
+			background: linear-gradient(
+				135deg, 
+				#FF0000 10%,   /* 紅 */
+				#FF7F00 16.6%, /* 橙 */
+				#FFFF00 33.3%, /* 黃 */
+				#00FF00 50%,   /* 綠 */
+				#0000FF 66.6%, /* 藍 */
+				#4B0082 83%, /* 靛 */
+				#8B00FF 90%   /* 紫 */
+			);
+			background-attachment: fixed; 
+			min-height: 100vh;
+		}
+
+        .fixed-header {
+            position: fixed; top: 20px; left: 0; width: 100%;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            z-index: 9999; pointer-events: none; 
         }
 
-        .lobby-container { 
-            background: white; 
-            padding: 30px; 
-            border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
-            width: 350px; 
-            text-align: center; 
+        .dropdown {
+            position: relative; pointer-events: auto;
+        }
+        .left-side { margin-left: 40px; }
+        .right-side { margin-right: 40px; }
+
+        .dropdown-trigger {
+            height: 150px; width: 150px; 
+            object-fit: cover; border-radius: 12px; cursor: pointer;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+            display: block; transition: transform 0.3s;
+        }
+        .dropdown:hover .dropdown-trigger { transform: scale(1.05); }
+
+        .dropdown-content {
+            position: absolute; 
+            top: 99%; 
+            width: 150px; 
+            max-height: 0; opacity: 0;
+            overflow: hidden; 
+            transition: max-height 0.6s ease, opacity 0.4s ease;
+            display: flex; flex-direction: column; gap: 0;
+            z-index: 1001;
+        }
+        .left-side .dropdown-content { left: 0; }
+        .right-side .dropdown-content { right: 0; }
+
+        .dropdown:hover .dropdown-content {
+            max-height: 800px; opacity: 1;
         }
 
-        h2 { color: #2c3e50; margin-bottom: 30px; letter-spacing: 2px; }
-        
-        .section { 
-            background: #fafafa;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #eee;
+        .dropdown-content img {
+            width: 150px; height: 150px; 
+            object-fit: cover; display: block;
+            border-radius: 0;
         }
 
-        h3 { font-size: 1rem; color: #7f8c8d; margin-top: 0; margin-bottom: 15px; }
-
-        input[type="text"] { 
-            width: 100%; 
-            padding: 12px; 
-            margin-bottom: 12px; 
-            border: 2px solid #dfe6e9; 
-            border-radius: 8px; 
-            box-sizing: border-box; 
-            font-size: 1rem;
-            transition: border-color 0.3s;
+        .dropdown-content img:last-child {
+            border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
         }
 
-        input[type="text"]:focus { 
-            border-color: #3498db; 
-            outline: none; 
-        }
+		.container {
+			width: 85%; 
+			max-width: 900px; 
+			background: #ffffff;
+			padding: 50px; 
+			
+			margin-top: 100px; 
+			
+			margin-bottom: 50px;
+			box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+			border-radius: 60px; 
+		}
+		
+		.header-container {
+			display: flex;          
+			align-items: center;   
+			gap: 15px;             
+		}
 
-        button { 
-            width: 100%; 
-            padding: 12px; 
-            border: none; 
-            border-radius: 8px; 
-            font-size: 1rem; 
-            font-weight: bold;
-            cursor: pointer; 
-            transition: transform 0.1s, background 0.3s;
-        }
+		.header-container img {
+			width: 100px;        
+			height: 100px;         
+			object-fit: cover;     
+			border-radius: 8px;   
+		}
 
-        button:active { transform: scale(0.98); }
+		header-container h1 {
+			margin: 0;             
+			font-size: 60px;
+			color: #333;
+		}
+		
+		.title-underline {
+			width: 100%;
+			height: 12px;           
+			background-color: #E6D2A0; 
+			margin: 10px auto 0;   
+			border-radius: 10px;   
+		}
+		
+		
 
-        /* 建立按鈕：綠色系 */
-        .btn-create { background-color: #27ae60; color: white; }
-        .btn-create:hover { background-color: #219150; }
-
-        /* 加入按鈕：藍色系 */
-        .btn-join { background-color: #3498db; color: white; }
-        .btn-join:hover { background-color: #2980b9; }
-
-        .divider { 
-            margin: 10px 0 25px 0; 
-            color: #bdc3c7; 
-            font-size: 0.9rem;
-            position: relative; 
-        }
-        
-        .divider::before, .divider::after { 
-            content: ""; background: #ecf0f1; height: 1px; width: 35%; 
-            position: absolute; top: 50%; 
-        }
-        .divider::before { left: 0; }
-        .divider::after { right: 0; }
-        /* --- CSS 結束 --- */
+        h1 { text-align: center; color: #2c3e50; }
+		h2 { margin-bottom: 0px !important; }
+		h3 {    
+			color: #2c3e50;          
+			border: 3px solid #E6D2A0; 
+			border-radius: 20px; 
+			padding: 15px 25px;     
+			background-color: #fff9ed; 
+		}
+		.rainbow-text {
+			font-size: 60px;
+			font-weight: bold;
+			background: linear-gradient(to right, #FF0000, #FF7F00, #FFFF00, #00FF00, #0000FF, #4B0082, #8B00FF);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+		}
+        table { border-collapse: collapse; width: 100%; margin: 25px 0; border-radius: 15px; overflow: hidden; }
+        th, td { border: 1px solid #333; padding: 15px; text-align: center;  }
+        th { background-color: #f9f9f9; }
+        .submit-btn { background-color: #ff4757; color: white; border: none; padding: 14px 20px; border-radius: 30px; cursor: pointer; width: 100%; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="lobby-container">
-    <h2>Tic-Tac-Toe</h2>
+    <div class="fixed-header">
+        <div class="dropdown left-side">
+            <img src="2.PNG" alt="左觸發圖" class="dropdown-trigger">  
+            <div class="dropdown-content">
+                <img src="3.PNG" alt="滑出圖1">
+                <img src="2.PNG" alt="滑出圖2">
+                <img src="3.PNG" alt="滑出圖3">
+            </div>
+        </div>
 
-    <div class="section">
-        <h3>我要開新房間</h3>
-        <form action="create_room.php" method="POST">
-            <input type="text" name="room_name" placeholder="請輸入新房號名稱" required autocomplete="off">
-            <button type="submit" class="btn-create">建立房間 (獲取密碼)</button>
-        </form>
+        <div class="dropdown right-side">
+            <img src="3.PNG" alt="右觸發圖" class="dropdown-trigger">
+            <div class="dropdown-content">
+                <img src="2.PNG" alt="滑出圖1">
+                <img src="3.PNG" alt="滑出圖2">
+                <img src="2.PNG" alt="滑出圖3">
+            </div>
+        </div>
     </div>
 
-    <div class="divider">或者</div>
+    <div class="container">
+		<div class="header-container">
+				<img src="4.PNG" alt="滑出圖2" style="width: 10%;">
+				<img src="3.PNG" alt="滑出圖3" style="width: 10%;">
+				<img src="5.PNG" alt="滑出圖3" style="width: 12%;">
+			<h1>狸想世界</h1>
+				<img src="1.PNG" alt="滑出圖2" style="width: 16%;">
+				<img src="6.PNG" alt="滑出圖2" style="width: 10%;">
+		</div>
+		<div class="title-underline"></div>
+		
+		<section>
+			<div class="header-container">
+				<img src="6.PNG" alt="滑出圖2" style="height: 5%;  width: 5%;">
+				<h2>電影簡介</h2>
+				<img src="6.PNG" alt="滑出圖2" style="height: 5%; width: 5%;">
+			</div>
+			<div class="header-container">
+				<h3>故事背景設定在科學家們開發出一種革命性技術，可以將人類意識「上身」進高度擬真的機器動物體內，讓使用者以動物的樣貌與牠們溝通互動。<br/>
+					主角梅寶熱愛動物的大學生，她藉此機會將意識「上身」入機器河狸體內，潛入動物世界探索未知。<br/>
+					成為河狸後，梅寶認識了河狸國王喬治，理解並學習動物界的生存法則，比方看似佛系的「池塘準則」等等…。<br/>
+					在這過程中，她也意外看透陰謀鬥爭：當市長傑瑞計畫開發自然棲地、破壞動物家園時，梅寶決定挺身而出，她與動物同伴們能否成功挽救自然棲地?</h3>
+			</div>
+		</section>
+		 
+        <section>
+			<table>
+				<tr><th style="width: 50%;">
+					<h2>台灣官方宣傳帳號</h2>
+					<div class="header-container">
+						<img src="7.PNG" alt="滑出圖2" >
+						<a href="https://www.threads.com/@disneystudios.tw" target="_blank" style="color: #ff4757; font-weight: bold; text-decoration: none;">https://www.threads.com/@disneystudios.tw</a>	
+					</div>
+					<h2>官方宣傳小活動 「狸」清真相</h2>
+					<div class="header-container">
+						<img src="8.PNG" alt="滑出圖2" >
+						<a href="https://www.disneyhoppers.com.tw/" target="_blank" style="color: #ff4757; font-weight: bold; text-decoration: none;">https://www.disneyhoppers.com.tw/</a>
+					</div>
+				</th>
+				<th  style="width: 50%; text-align: center;">
+					<h2>電影海報</h2>
+					<img src="9.PNG" alt="滑出圖2" style= "width: 50%; height: 50%;" >
+				</th></tr>
+			</table>
+			
+        </section>
 
-    <div class="section">
-        <h3>加入好友的房間</h3>
-        <form action="game.php" method="GET">
-            <input type="text" name="room" placeholder="房號" required>
-            <input type="text" name="pw" placeholder="4 位數密碼" required maxlength="4" autocomplete="off">
-            <button type="submit" class="btn-join">進入遊戲</button>
-        </form>
+        <section>
+            <h2>角色海報展示</h2>
+            <table style="font-size:20px;">
+                <tr ><th style="width: 33.3%; background: linear-gradient(180deg, #FF4757 0%, #E6D2A0 100%);">梅寶</th><th style="width: 33.3%;background: linear-gradient(180deg,#FF6700  0%, #FFFACD 100%);">喬治王</th><th style="width: 33.3%; width: 33.3%; background: linear-gradient(180deg, #FF4757 0%, #E6D2A0 100%);">傑瑞市長</th></tr>
+                <tr><td><img src="10_1.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td><td><img src="10_2.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td><td><img src="10_3.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td></tr>
+                <tr><th style ="background: linear-gradient(180deg,#FF6700  0%, #FFFACD 100%);">昆蟲國王</th><th style ="background: linear-gradient(180deg,#FFEC8B 0%, #FFFACD 100%);">昆蟲女王</th><th style ="background: linear-gradient(180deg,#FF6700  0%, #FFFACD 100%);">昆蟲王子</th></tr>
+				<tr><td><img src="10_4.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td><td><img src="10_5.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td><td><img src="10_6.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td></tr>
+				<tr><th style ="background: linear-gradient(180deg,#98FB98 0%, #B2EBF2 100%);">鳥王</th><th style ="background: linear-gradient(180deg, #00AAFF 0%, #CCEEFF 100%);">黛安</th><th style ="background: linear-gradient(180deg,#98FB98 0%, #B2EBF2 100%);">兩棲王</th></tr>
+				<tr><td><img src="10_7.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td><td><img src="10_8.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td><td><img src="10_9.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td></tr>
+				<tr><th style ="background: linear-gradient(180deg, #00AAFF 0%, #CCEEFF 100%);">魚女王</th><th style ="background: linear-gradient(180deg, #FFF0F5 0%,#FFB7C5  100%);">爬蟲類女王</th><th style ="background: linear-gradient(180deg, #00AAFF 0%, #CCEEFF 100%);">阿廢</th></tr>
+				<tr><td><img src="10_10.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td><td><img src="10_11.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td><td><img src="10_12.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td></tr>
+				<tr><th style ="background: linear-gradient(180deg, #FFF0F5 0%,#FFB7C5  100%);">艾倫</th><th style ="background: linear-gradient(180deg, #9D50BB 0%,#FFF0F5 100%);">蜥蜴湯姆</th><th style ="background: linear-gradient(180deg, #FFF0F5 0%,#FFB7C5  100%);">此生一定要看一次~!</th></tr>
+				<tr><td><img src="10_13.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td><td><img src="10_14.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td><td style ="background: linear-gradient(180deg, #9D50BB 0%,#FFF0F5 100%);"><img src="11.PNG" alt="滑出圖2" style="width: 90%; height: 90%"></td></tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>3. 意見回饋</h2>
+            <form>
+                <input type="text" placeholder="您的姓名" style="width:100%; padding:15px; margin-bottom:15px; border-radius:10px; border:1px solid #ddd; box-sizing: border-box;">
+				<input type="text" placeholder="您的意見" style="width:100%; padding:15px; margin-bottom:15px; border-radius:10px; border:1px solid #ddd; box-sizing: border-box;">
+                <button type="button" class="submit-btn">送出回饋</button>
+            </form>
+        </section>
     </div>
-
-</div>
 
 </body>
 </html>
